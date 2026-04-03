@@ -4,17 +4,17 @@ A LINE group bot for tracking monthly running scores and keeping bail-outs accou
 
 ## Commands
 
-| Message | Action |
-|---|---|
-| `+5.2` | Log KM for yourself |
-| `ชื่อ +5.2` | Log KM for someone by name |
-| Send a run screenshot | Auto-extract KM via OCR |
-| `@mention บิด` | Add a bail-out point |
-| `@mention unบิด` | Remove the last bail-out point |
-| `/km` or `วิ่ง` | Monthly KM leaderboard |
-| `/บิด` or `นักบิด` | Monthly bail-out leaderboard |
-| `นักบิดตัวยง` | All-time bail-out hall of fame |
-| `ช่วยด้วย` | Show help |
+| Message               | Action                         |
+| --------------------- | ------------------------------ |
+| `+5.2`                | Log KM for yourself            |
+| `ชื่อ +5.2`           | Log KM for someone by name     |
+| Send a run screenshot | Auto-extract KM via OCR        |
+| `@mention บิด`        | Add a bail-out point           |
+| `@mention unบิด`      | Remove the last bail-out point |
+| `/km` or `วิ่ง`       | Monthly KM leaderboard         |
+| `/บิด` or `นักบิด`    | Monthly bail-out leaderboard   |
+| `นักบิดตัวยง`         | All-time bail-out hall of fame |
+| `ช่วยด้วย`            | Show help                      |
 
 ## Screenshots
 
@@ -35,8 +35,8 @@ A LINE group bot for tracking monthly running scores and keeping bail-outs accou
 
 ```bash
 cp .env.example .env   # fill in LINE_CHANNEL_ACCESS_TOKEN and LINE_CHANNEL_SECRET
-npm install
-npm run dev            # starts with nodemon + ts-node
+bun install
+bun run dev            # starts with nodemon + ts-node
 ```
 
 Expose locally with ngrok and set the webhook URL in LINE Developers Console to `https://<ngrok-url>/webhook`.
