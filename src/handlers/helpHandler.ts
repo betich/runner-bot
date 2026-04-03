@@ -1,0 +1,31 @@
+import { MessageEvent } from '@line/bot-sdk';
+import { lineClient } from '../services/lineClient';
+
+const HELP_TEXT = `🤖 LINE Runner Bot — คำสั่งทั้งหมด
+
+🏃 บันทึก KM
+  <ชื่อ> +<km>   เช่น  บิว +5.2
+  ส่งรูปจากแอพวิ่ง  (อ่านค่า km อัตโนมัติ)
+  รองรับทศนิยมทั้ง  5.2  และ  5,2
+
+🛵 บิด
+  @mention บิด   หรือ  @mention บิดคับ
+  เพิ่มแต้มนักบิดให้คนที่โดน mention
+
+↩️ unบิด
+  @mention unบิด
+  ลบแต้มนักบิดล่าสุดของเดือนนี้ออก 1 แต้ม
+
+📊 ดูตาราง
+  /km  หรือ  วิ่ง         → ตาราง KM เดือนนี้
+  /บิด  หรือ  นักบิด       → ตารางนักบิดเดือนนี้
+  นักบิดตัวยง              → ฮอลล์ออฟเฟมนักบิดตลอดกาล 🏛️
+
+ช่วยด้วย  → แสดงข้อความนี้`;
+
+export async function helpHandler(event: MessageEvent): Promise<void> {
+  await lineClient.replyMessage({
+    replyToken: event.replyToken,
+    messages: [{ type: 'text', text: HELP_TEXT }],
+  });
+}
