@@ -5,7 +5,7 @@ import { leaderboardHandler } from './handlers/leaderboardHandler';
 import { imageHandler } from './handlers/imageHandler';
 import { helpHandler } from './handlers/helpHandler';
 
-const KM_PATTERN = /^(.+?)\s*\+(\d+(?:[.,]\d+)?)\s*(?:km|กม\.?)?$/i;
+const KM_PATTERN = /^(?:(.+?)\s*)?\+(\d+(?:[.,]\d+)?)\s*(?:km|กม\.?)?$/i;
 const LEADERBOARD_KM_PATTERN = /^(\/km|วิ่ง|leaderboard)$/i;
 const LEADERBOARD_BID_PATTERN = /^(\/บิด|นักบิด)$/i;
 const LEADERBOARD_BID_ALLTIME_PATTERN = /^(\/นักบิดตัวยง|นักบิดตัวยง)$/i;
