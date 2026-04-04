@@ -1,0 +1,19 @@
+[Unit]
+Description=LINE Runner Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=%i
+WorkingDirectory=/home/%i/code/line-runner-bot
+EnvironmentFile=/home/%i/code/line-runner-bot/.env
+ExecStart=/home/%i/.nvm/versions/node/v24.14.1/bin/bun run dist/index.js
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=line-runner-bot
+
+[Install]
+WantedBy=multi-user.target
