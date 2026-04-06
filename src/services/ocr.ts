@@ -30,8 +30,11 @@ export async function extractTextFromImage(imageBuffer: Buffer): Promise<string>
 export function extractDistanceKm(ocrText: string): number | null {
   const lines = ocrText.split('\n').map((l) => l.trim()).filter(Boolean);
 
+  // Matches: km, กม, กม., ก.ม., ก.ม (with optional trailing dot)
+  const KM_UNIT = /(?:km|ก\.?ม\.?)/i;
+
   // Strategy 1: number immediately followed by km/กม on the same line
-  const inlinePattern = /(\d+[.,]\d+|\d+)\s*(?:km|กม\.?)/i;
+  const inlinePattern = new RegExp(`(\\d+[.,]\\d+|\\d+)\\s*${KM_UNIT.source}`, 'i');
   for (const line of lines) {
     const match = line.match(inlinePattern);
     if (match) {
@@ -42,7 +45,7 @@ export function extractDistanceKm(ocrText: string): number | null {
 
   // Strategy 2: "km" or "กม" label on its own line, with a number on adjacent line
   for (let i = 0; i < lines.length; i++) {
-    if (/^(?:km|กม\.?)$/i.test(lines[i])) {
+    if (new RegExp(`^${KM_UNIT.source}$`, 'i').test(lines[i])) {
       for (const adjacent of [lines[i - 1], lines[i + 1]]) {
         if (!adjacent) continue;
         const numMatch = adjacent.match(/^(\d+[.,]\d+|\d+)$/);
