@@ -12,28 +12,56 @@ export const KM_ADDED_MESSAGES: Array<(name: string, km: number) => string> = [
   (name, km) => `${name} วิ่ง ${km} km อีกแล้ว... คนอื่นยังนอนอยู่เลย 😅`,
 ];
 
-export const BID_ADDED_MESSAGES: Array<(name: string, count: number, reason?: string) => string> = [
-  (name, count, reason) => reason
-    ? `${name} บิดเพราะ "${reason}" 🤦 ครั้งที่ ${count} แล้วนะเนี่ย`
-    : `${name} บิดอีกแล้วเหรอ! 😤 เดือนนี้ ${count} ครั้งแล้วนะ`,
-  (name, count, reason) => reason
-    ? `"${reason}" อ้างอิงไรอ่ะ ${name}... ไม่มีใครเชื่อหรอก 😂 (${count} ครั้งแล้ว)`
-    : `${name} เข้าใกล้แชมป์นักบิดแล้ว! 🏆 ${count} ครั้งเดือนนี้`,
-  (name, count, reason) => reason
-    ? `โอเค ${name} บิดเพราะ "${reason}" ✅ ฟังดูน่าเชื่อถือมาก (ไม่เชื่อเลย) 🙄`
-    : `ใครบิดก็ ${name} อีกแล้ว 555+ (${count} ครั้งแล้วเดือนนี้)`,
-  (name, count, reason) => reason
-    ? `บันทึก "${reason}" ไว้เป็นหลักฐานแล้ว ${name} 📋 ครั้งที่ ${count} เดือนนี้!`
-    : `บันทึกแล้ว! ${name} +1 แต้มนักบิด 📋 รวม ${count} ครั้งเดือนนี้`,
-  (name, count, reason) => reason
-    ? `${name} บิดอย่างมีสไตล์เพราะ "${reason}" 🛵 ครั้งที่ ${count} ปีนี้... เออ เดือนนี้`
-    : `${name} บิดอย่างมีสไตล์ 🛵 ${count} ครั้งแล้วนะ`,
-  (name, count, reason) => reason
-    ? `ไม่แปลกใจเลย ${name} ข้อแก้ตัวครั้งที่ ${count}: "${reason}" 😏`
-    : `ไม่แปลกใจเลย... ${name} บิดอีกครั้ง 😏 ${count} ครั้งแล้วเดือนนี้`,
-  (name, count, reason) => reason
-    ? `${name} มีพรสวรรค์ด้านการบิดจริงๆ 🎓 ครั้งที่ ${count} เหตุผล: "${reason}"`
-    : `${name} มีพรสวรรค์ด้านการบิดจริงๆ 🎓 ${count} ครั้งแล้วเดือนนี้`,
+// Self-reported bid — skeptical tone
+export const BID_SELF_MESSAGES: Array<
+  (name: string, count: number, reason?: string) => string
+> = [
+  (name, count, reason) =>
+    reason
+      ? `อ้าว ${name} บิดเองแล้วยังรายงานเองด้วย... เหตุผล: "${reason}" 🙄 (ครั้งที่ ${count})`
+      : `${name} รายงานตัวเองเหรอ... โอเค บันทึกให้ละกัน 🙄 ครั้งที่ ${count} แล้วนะ`,
+  (name, count, reason) =>
+    reason
+      ? `"${reason}" อ้างอิงไรอ่ะ ${name}... ใช่หรอ 🌝 ครั้งที่ ${count} แล้ว`
+      : `${name} สารภาพเองเลยนะ 😏 รวม ${count} ครั้งเดือนนี้`,
+  (name, count, reason) =>
+    reason
+      ? `โอเค ${name} บิดเพราะ "${reason}" ฟังดูน่าเชื่อถือมาก 🤗 ครั้งที่ ${count}`
+      : `${name} บอกเองว่าบิด... ความซื่อสัตย์ก็ดีนะ แต่ก็ยังบิดอยู่ดี 😶 ครั้งที่ ${count}`,
+  (name, count, reason) =>
+    reason
+      ? `บันทึก "${reason}" ไว้เป็นหลักฐานแล้ว ${name} 📋 ครั้งที่ ${count}!`
+      : `${name} รายงานตัวเอง +1 แต้มนักบิด 📋 รวม ${count} ครั้งเดือนนี้`,
+  (name, count, reason) =>
+    reason
+      ? `${name} บิดเพราะ "${reason}" แล้วมาบอกเองด้วย... ครั้งที่ ${count} ปีนี้ เออ เดือนนี้ 🛵`
+      : `${name} รายงานตัวเองว่าบิด ความกล้าน่าชื่นชม แต่ก็ยังได้แต้มนะ 🛵 ครั้งที่ ${count}`,
+];
+
+// Reported by others — disappointed/encouraging tone
+export const BID_REPORTED_MESSAGES: Array<
+  (name: string, count: number, reason?: string) => string
+> = [
+  (name, count, reason) =>
+    reason
+      ? `${name} บิดเพราะ "${reason}" 😔 หวังว่าครั้งหน้าจะไหวนะ (ครั้งที่ ${count})`
+      : `${name} บิดอีกแล้ว... 😔 เดือนนี้ ${count} ครั้งแล้วนะ ไปวิ่งได้แล้ว`,
+  (name, count, reason) =>
+    reason
+      ? `"${reason}" เข้าใจนะ ${name} แต่ครั้งหน้าสู้ๆ นะ 💪 (ครั้งที่ ${count})`
+      : `${name} พลาดไปอีกครั้ง... ไม่เป็นไร ครั้งหน้าทำได้แน่นอน 💪 ครั้งที่ ${count}`,
+  (name, count, reason) =>
+    reason
+      ? `โอ้ ${name}... "${reason}" เหรอ 😞 ยังไงก็เป็นกำลังใจให้นะ ครั้งที่ ${count}`
+      : `${name} บิดอีกครั้ง 😞 ${count} ครั้งแล้วเดือนนี้ แต่ยังมีเวลาเหลือนะ!`,
+  (name, count, reason) =>
+    reason
+      ? `บันทึกแล้ว ${name} เหตุผล: "${reason}" 📋 ครั้งหน้าสู้ใหม่นะ! ครั้งที่ ${count}`
+      : `บันทึกแล้ว ${name} +1 แต้มนักบิด 📋 ${count} ครั้งเดือนนี้ ไปวิ่งเลยนะ!`,
+  (name, count, reason) =>
+    reason
+      ? `${name} บิดเพราะ "${reason}" 🥺 ไม่เป็นไร ครั้งหน้าอย่าลืมนะ ครั้งที่ ${count}`
+      : `${name}... 🥺 ${count} ครั้งแล้วเดือนนี้ เพื่อนๆ รอนะ!`,
 ];
 
 export const KM_OCR_FAILED_MESSAGES: Array<() => string> = [

@@ -2,7 +2,7 @@ import { MessageEvent, TextMessage } from '@line/bot-sdk';
 import { addBidEntry, removeBidEntry, getBidCount } from '../services/database';
 import { getChatId, getMemberDisplayName } from '../utils/chatHelpers';
 import { lineClient } from '../services/lineClient';
-import { pickRandom, BID_ADDED_MESSAGES } from '../messages/randomMessages';
+import { pickRandom, BID_SELF_MESSAGES, BID_REPORTED_MESSAGES } from '../messages/randomMessages';
 
 const UNBID_PATTERN = /unบิด/;
 const BID_PATTERN = /(?:^|\s)บิด(?:คับ)?(?:\s|$)/;
@@ -58,7 +58,7 @@ export async function selfBidHandler(
     const reason = reasonMatch?.[1]?.trim();
     addBidEntry(groupId, displayName, userId, userId);
     const count = getBidCount(groupId, userId);
-    const reply = pickRandom(BID_ADDED_MESSAGES)(displayName, count, reason);
+    const reply = pickRandom(BID_SELF_MESSAGES)(displayName, count, reason);
     await lineClient.replyMessage({
       replyToken: event.replyToken,
       messages: [{ type: 'text', text: reply }],
@@ -103,7 +103,7 @@ export async function bidHandler(
 
     const firstProfile = profiles[0];
     const count = getBidCount(groupId, firstProfile.userId);
-    const reply = pickRandom(BID_ADDED_MESSAGES)(firstProfile.displayName, count, reason);
+    const reply = pickRandom(BID_REPORTED_MESSAGES)(firstProfile.displayName, count, reason);
 
     await lineClient.replyMessage({
       replyToken: event.replyToken,
