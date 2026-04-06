@@ -1,6 +1,6 @@
 # LINE Runner Bot
 
-A LINE group bot for tracking monthly running scores and keeping bail-outs accountable.
+🏃🏻 A LINE group bot for tracking monthly running scores and keeping bail-outs accountable.
 
 ## Commands
 

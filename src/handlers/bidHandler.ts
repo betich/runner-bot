@@ -1,13 +1,13 @@
 import { MessageEvent, TextMessage } from '@line/bot-sdk';
-import { addBidEntry, removeBidEntry } from '../services/database';
+import { addBidEntry, removeBidEntry, getBidCount } from '../services/database';
 import { getChatId, getMemberDisplayName } from '../utils/chatHelpers';
 import { lineClient } from '../services/lineClient';
 import { pickRandom, BID_ADDED_MESSAGES } from '../messages/randomMessages';
 
 const UNBID_PATTERN = /unบิด/;
-const BID_PATTERN = /บิด/;
-const SELF_BID_PATTERN = /^ผมบิด|^หนูบิด|^ฉันบิด/;
-const SELF_UNBID_PATTERN = /^unบิดผม|^unบิดหนู|^unบิดฉัน/;
+const BID_PATTERN = /(?:^|\s)บิด(?:คับ)?(?:\s|$)/;
+const SELF_BID_PATTERN = /^(?:ผม|หนู|ฉัน)บิด(?:คับ)?(?:\s|$)/;
+const SELF_UNBID_PATTERN = /^unบิด(?:ผม|หนู|ฉัน)/;
 
 async function resolveMentionees(
   event: MessageEvent & { message: TextMessage }
@@ -54,8 +54,11 @@ export async function selfBidHandler(
     } catch {
       displayName = userId;
     }
+    const reasonMatch = text.match(/บิด(?:คับ)?\s+(.+)$/);
+    const reason = reasonMatch?.[1]?.trim();
     addBidEntry(groupId, displayName, userId, userId);
-    const reply = pickRandom(BID_ADDED_MESSAGES)(displayName);
+    const count = getBidCount(groupId, userId);
+    const reply = pickRandom(BID_ADDED_MESSAGES)(displayName, count, reason);
     await lineClient.replyMessage({
       replyToken: event.replyToken,
       messages: [{ type: 'text', text: reply }],
@@ -92,12 +95,15 @@ export async function bidHandler(
     });
   } else if (BID_PATTERN.test(text)) {
     const reporterId = event.source.userId ?? 'unknown';
+    const reasonMatch = text.match(/บิด(?:คับ)?\s+(?!@)(.+)$/);
+    const reason = reasonMatch?.[1]?.trim();
     for (const profile of profiles) {
       addBidEntry(groupId, profile.displayName, profile.userId, reporterId);
     }
 
-    const firstName = profiles[0].displayName;
-    const reply = pickRandom(BID_ADDED_MESSAGES)(firstName);
+    const firstProfile = profiles[0];
+    const count = getBidCount(groupId, firstProfile.userId);
+    const reply = pickRandom(BID_ADDED_MESSAGES)(firstProfile.displayName, count, reason);
 
     await lineClient.replyMessage({
       replyToken: event.replyToken,

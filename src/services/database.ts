@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { Database } from 'bun:sqlite';
 import path from 'path';
 import fs from 'fs';
 import { config } from '../config';
@@ -7,9 +7,9 @@ const dbPath = path.resolve(config.dbPath);
 fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 
 const db = new Database(dbPath);
-db.pragma('journal_mode = WAL');
+db.run('PRAGMA journal_mode = WAL');
 
-db.exec(`
+db.run(`
   CREATE TABLE IF NOT EXISTS km_entries (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     group_id    TEXT NOT NULL,
@@ -101,7 +101,7 @@ export function removeBidEntry(groupId: string, targetId: string, count = 1): nu
        LIMIT ?
      )`
   ).run(groupId, targetId, count);
-  return result.changes as number;
+  return result.changes;
 }
 
 export function getBidLeaderboard(groupId: string): BidLeaderboardRow[] {
@@ -114,6 +114,17 @@ export function getBidLeaderboard(groupId: string): BidLeaderboardRow[] {
      ORDER BY bid_count DESC
      LIMIT 20`
   ).all(groupId) as BidLeaderboardRow[];
+}
+
+export function getBidCount(groupId: string, targetId: string): number {
+  const row = db.prepare(
+    `SELECT COUNT(*) as cnt
+     FROM bid_entries
+     WHERE group_id = ?
+       AND target_id = ?
+       AND strftime('%Y-%m', logged_at) = strftime('%Y-%m', 'now')`
+  ).get(groupId, targetId) as { cnt: number };
+  return row.cnt;
 }
 
 export function getBidLeaderboardAllTime(groupId: string): BidLeaderboardRow[] {

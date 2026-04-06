@@ -3,7 +3,7 @@ import { lineClient, lineBlobClient } from '../services/lineClient';
 import { addKmEntry } from '../services/database';
 import { extractTextFromImage, extractDistanceKm } from '../services/ocr';
 import { getChatId, getMemberDisplayName } from '../utils/chatHelpers';
-import { pickRandom, KM_ADDED_MESSAGES, KM_OCR_FAILED_MESSAGES } from '../messages/randomMessages';
+import { pickRandom, KM_ADDED_MESSAGES } from '../messages/randomMessages';
 
 async function streamToBuffer(readable: NodeJS.ReadableStream): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -30,22 +30,11 @@ export async function imageHandler(
     ocrText = await extractTextFromImage(imageBuffer);
   } catch (err) {
     console.error('OCR error:', err);
-    await lineClient.replyMessage({
-      replyToken: event.replyToken,
-      messages: [{ type: 'text', text: pickRandom(KM_OCR_FAILED_MESSAGES)() }],
-    });
     return;
   }
 
   const km = extractDistanceKm(ocrText);
-
-  if (!km) {
-    await lineClient.replyMessage({
-      replyToken: event.replyToken,
-      messages: [{ type: 'text', text: pickRandom(KM_OCR_FAILED_MESSAGES)() }],
-    });
-    return;
-  }
+  if (!km) return;
 
   // Fetch user's display name for logging
   let userName = userId;
