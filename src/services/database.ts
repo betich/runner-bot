@@ -88,20 +88,20 @@ export interface BidLeaderboardRow {
   bid_count: number;
 }
 
-/** Removes the most recent bid entry for a target in the current month. Returns true if one was deleted. */
-export function removeBidEntry(groupId: string, targetId: string): boolean {
+/** Removes the N most recent bid entries for a target in the current month. Returns how many were deleted. */
+export function removeBidEntry(groupId: string, targetId: string, count = 1): number {
   const result = db.prepare(
     `DELETE FROM bid_entries
-     WHERE id = (
+     WHERE id IN (
        SELECT id FROM bid_entries
        WHERE group_id = ?
          AND target_id = ?
          AND strftime('%Y-%m', logged_at) = strftime('%Y-%m', 'now')
        ORDER BY logged_at DESC
-       LIMIT 1
+       LIMIT ?
      )`
-  ).run(groupId, targetId);
-  return result.changes > 0;
+  ).run(groupId, targetId, count);
+  return result.changes as number;
 }
 
 export function getBidLeaderboard(groupId: string): BidLeaderboardRow[] {
