@@ -1,9 +1,11 @@
 import { MessageEvent, TextMessage } from '@line/bot-sdk';
-import { addKmEntry } from '../services/database';
+import { addKmEntry, getKmLeaderboard } from '../services/database';
 import { parseDistance } from '../utils/parseDistance';
-import { getChatId, getMemberDisplayName } from '../utils/chatHelpers';
+import { getChatId, getChatName, getMemberDisplayName } from '../utils/chatHelpers';
 import { lineClient } from '../services/lineClient';
 import { pickRandom, KM_ADDED_MESSAGES } from '../messages/randomMessages';
+import { buildKmLeaderboard } from '../messages/flexTemplates';
+import { currentMonthLabel } from '../utils/dateHelpers';
 
 const KM_PATTERN = /^(?:(.+?)\s*)?\+(\d+(?:[.,]\d+)?)\s*(?:km|กม\.?)?$/i;
 
@@ -30,13 +32,34 @@ export async function kmHandler(
       name = userId;
     }
     addKmEntry(groupId, name, km, 'text', userId);
+  } else if (name.startsWith('@')) {
+    // @mention: resolve display name via mentionee userId
+    const mentionees = event.message.mention?.mentionees ?? [];
+    const matched = mentionees.find(
+      (m) => text.substring(m.index, m.index + m.length) === name
+    );
+    if (matched && matched.type === 'user' && matched.userId) {
+      try {
+        name = await getMemberDisplayName(event.source, matched.userId);
+      } catch {
+        name = name.replace(/^@/, '');
+      }
+      addKmEntry(groupId, name, km, 'text', matched.userId);
+    } else {
+      name = name.replace(/^@/, '');
+      addKmEntry(groupId, name, km, 'text');
+    }
   } else {
     addKmEntry(groupId, name, km, 'text');
   }
 
   const reply = pickRandom(KM_ADDED_MESSAGES)(name, km);
+  const monthLabel = currentMonthLabel();
+  const groupName = await getChatName(event.source).catch(() => null);
+  const leaderboardFlex = buildKmLeaderboard(getKmLeaderboard(groupId), monthLabel, groupName);
+
   await lineClient.replyMessage({
     replyToken: event.replyToken,
-    messages: [{ type: 'text', text: reply }],
+    messages: [{ type: 'text', text: reply }, leaderboardFlex],
   });
 }

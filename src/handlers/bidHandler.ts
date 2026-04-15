@@ -1,8 +1,10 @@
 import { MessageEvent, TextMessage } from '@line/bot-sdk';
-import { addBidEntry, removeBidEntry, getBidCount } from '../services/database';
-import { getChatId, getMemberDisplayName } from '../utils/chatHelpers';
+import { addBidEntry, removeBidEntry, getBidCount, getBidLeaderboard } from '../services/database';
+import { getChatId, getChatName, getMemberDisplayName } from '../utils/chatHelpers';
 import { lineClient } from '../services/lineClient';
 import { pickRandom, BID_SELF_MESSAGES, BID_REPORTED_MESSAGES } from '../messages/randomMessages';
+import { buildBidLeaderboard } from '../messages/flexTemplates';
+import { currentMonthLabel } from '../utils/dateHelpers';
 
 const UNBID_PATTERN = /unบิด/;
 const BID_PATTERN = /(?:^|\s)บิด(?:คับ)?(?:\s|$)/;
@@ -59,9 +61,12 @@ export async function selfBidHandler(
     addBidEntry(groupId, displayName, userId, userId);
     const count = getBidCount(groupId, userId);
     const reply = pickRandom(BID_SELF_MESSAGES)(displayName, count, reason);
+    const monthLabel = currentMonthLabel();
+    const groupName = await getChatName(event.source).catch(() => null);
+    const leaderboardFlex = buildBidLeaderboard(getBidLeaderboard(groupId), monthLabel, groupName);
     await lineClient.replyMessage({
       replyToken: event.replyToken,
-      messages: [{ type: 'text', text: reply }],
+      messages: [{ type: 'text', text: reply }, leaderboardFlex],
     });
   }
 }
@@ -104,10 +109,13 @@ export async function bidHandler(
     const firstProfile = profiles[0];
     const count = getBidCount(groupId, firstProfile.userId);
     const reply = pickRandom(BID_REPORTED_MESSAGES)(firstProfile.displayName, count, reason);
+    const monthLabel = currentMonthLabel();
+    const groupName = await getChatName(event.source).catch(() => null);
+    const leaderboardFlex = buildBidLeaderboard(getBidLeaderboard(groupId), monthLabel, groupName);
 
     await lineClient.replyMessage({
       replyToken: event.replyToken,
-      messages: [{ type: 'text', text: reply }],
+      messages: [{ type: 'text', text: reply }, leaderboardFlex],
     });
   }
 }
