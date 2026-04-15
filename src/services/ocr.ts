@@ -23,6 +23,17 @@ export async function extractTextFromImage(imageBuffer: Buffer): Promise<string>
 }
 
 /**
+ * When OCR drops a European decimal comma (e.g. "5,01" → "501"),
+ * try inserting a dot before the last two digits to recover the value.
+ * Only applied to pure-digit strings of 3+ characters.
+ */
+function tryDroppedComma(raw: string): number | null {
+  if (!/^\d{3,}$/.test(raw)) return null;
+  const withDot = raw.slice(0, -2) + '.' + raw.slice(-2);
+  return parseDistance(withDot);
+}
+
+/**
  * Attempts to extract a running distance (km) from OCR text.
  * Uses three strategies in order of confidence.
  * Returns null if no unambiguous distance can be found.
@@ -38,7 +49,7 @@ export function extractDistanceKm(ocrText: string): number | null {
   for (const line of lines) {
     const match = line.match(inlinePattern);
     if (match) {
-      const km = parseDistance(match[1]);
+      const km = parseDistance(match[1]) ?? tryDroppedComma(match[1]);
       if (km) return km;
     }
   }
@@ -50,7 +61,7 @@ export function extractDistanceKm(ocrText: string): number | null {
         if (!adjacent) continue;
         const numMatch = adjacent.match(/^(\d+[.,]\d+|\d+)$/);
         if (numMatch) {
-          const km = parseDistance(numMatch[1]);
+          const km = parseDistance(numMatch[1]) ?? tryDroppedComma(numMatch[1]);
           if (km) return km;
         }
       }

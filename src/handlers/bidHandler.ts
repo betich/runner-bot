@@ -7,8 +7,9 @@ import { buildBidLeaderboard } from '../messages/flexTemplates';
 import { currentMonthLabel } from '../utils/dateHelpers';
 
 const UNBID_PATTERN = /unบิด/;
-const BID_PATTERN = /(?:^|\s)บิด(?:คับ)?(?:\s|$)/;
-const SELF_BID_PATTERN = /^(?:ผม|หนู|ฉัน)บิด(?:คับ)?(?:\s|$)/;
+const BID_SUFFIX = /(?:ครับผม|คับผม|ครับ|ค่ะ|คับ|จ้า)?/;
+const BID_PATTERN = new RegExp(`(?:^|\\s)บิด${BID_SUFFIX.source}(?:\\s|$)`);
+const SELF_BID_PATTERN = new RegExp(`^(?:ผม|หนู|ฉัน)บิด${BID_SUFFIX.source}(?:\\s|$)`);
 const SELF_UNBID_PATTERN = /^unบิด(?:ผม|หนู|ฉัน)/;
 
 async function resolveMentionees(
@@ -56,7 +57,7 @@ export async function selfBidHandler(
     } catch {
       displayName = userId;
     }
-    const reasonMatch = text.match(/บิด(?:คับ)?\s+(.+)$/);
+    const reasonMatch = text.match(/บิด(?:ครับผม|คับผม|ครับ|ค่ะ|คับ|จ้า)?\s+(.+)$/);
     const reason = reasonMatch?.[1]?.trim();
     addBidEntry(groupId, displayName, userId, userId);
     const count = getBidCount(groupId, userId);
@@ -100,7 +101,7 @@ export async function bidHandler(
     });
   } else if (BID_PATTERN.test(text)) {
     const reporterId = event.source.userId ?? 'unknown';
-    const reasonMatch = text.match(/บิด(?:คับ)?\s+(?!@)(.+)$/);
+    const reasonMatch = text.match(/บิด(?:ครับผม|คับผม|ครับ|ค่ะ|คับ|จ้า)?\s+(?!@)(.+)$/);
     const reason = reasonMatch?.[1]?.trim();
     for (const profile of profiles) {
       addBidEntry(groupId, profile.displayName, profile.userId, reporterId);
