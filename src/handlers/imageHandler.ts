@@ -1,9 +1,11 @@
 import { MessageEvent, ImageMessage } from '@line/bot-sdk';
 import { lineClient, lineBlobClient } from '../services/lineClient';
-import { addKmEntry } from '../services/database';
+import { addKmEntry, getKmLeaderboard } from '../services/database';
 import { extractTextFromImage, extractDistanceKm } from '../services/ocr';
-import { getChatId, getMemberDisplayName } from '../utils/chatHelpers';
+import { getChatId, getChatName, getMemberDisplayName } from '../utils/chatHelpers';
 import { pickRandom, KM_ADDED_MESSAGES } from '../messages/randomMessages';
+import { buildKmLeaderboard } from '../messages/flexTemplates';
+import { currentMonthLabel } from '../utils/dateHelpers';
 
 async function streamToBuffer(readable: NodeJS.ReadableStream): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -47,8 +49,12 @@ export async function imageHandler(
   addKmEntry(groupId, userName, km, 'ocr', userId);
 
   const reply = pickRandom(KM_ADDED_MESSAGES)(userName, km);
+  const monthLabel = currentMonthLabel();
+  const groupName = await getChatName(event.source).catch(() => null);
+  const leaderboardFlex = buildKmLeaderboard(getKmLeaderboard(groupId), monthLabel, groupName);
+
   await lineClient.replyMessage({
     replyToken: event.replyToken,
-    messages: [{ type: 'text', text: reply }],
+    messages: [{ type: 'text', text: reply }, leaderboardFlex],
   });
 }
