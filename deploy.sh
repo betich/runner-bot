@@ -50,7 +50,7 @@ if $SETUP; then
   echo "==> Service installed and started"
 else
   echo "==> Restarting bot"
-  ssh "$HOST" "sudo systemctl restart $SERVICE"
+  ssh -t "$HOST" "sudo systemctl restart $SERVICE"
 fi
 
 echo "==> Done! Bot is running on $HOST"
